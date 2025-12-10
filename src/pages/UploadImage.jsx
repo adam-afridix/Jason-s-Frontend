@@ -9,6 +9,7 @@ export default function UploadImage() {
   const [uploadProgress, setUploadProgress] = useState({});
   const [isUploading, setIsUploading] = useState(false);
   const [showMetaModal, setShowMetaModal] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
 
   const [metadata, setMetadata] = useState({
     title: "",
@@ -43,6 +44,44 @@ export default function UploadImage() {
     });
 
     e.target.value = "";
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+
+    const droppedFiles = Array.from(e.dataTransfer.files).filter((f) =>
+      f.type.startsWith("image/")
+    );
+
+    if (droppedFiles.length === 0) {
+      return alert("Please drop image files only");
+    }
+
+    setFiles(droppedFiles);
+
+    // Generate previews
+    const imgs = [];
+    droppedFiles.forEach((file) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        imgs.push({ name: file.name, src: reader.result });
+        if (imgs.length === droppedFiles.length) {
+          setPreviews(imgs);
+          setShowMetaModal(true); // Show modal after previews are loaded
+        }
+      };
+      reader.readAsDataURL(file);
+    });
   };
 
   const handleUpload = async () => {
@@ -284,9 +323,12 @@ export default function UploadImage() {
 
           {/* Upload Area */}
           <div
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
             style={{
-              background: "white",
-              border: "2px dashed #e5e7eb",
+              background: isDragging ? "#faf5ff" : "white",
+              border: isDragging ? "2px dashed #a855f7" : "2px dashed #e5e7eb",
               borderRadius: "16px",
               padding: "48px 24px",
               textAlign: "center",
@@ -304,30 +346,38 @@ export default function UploadImage() {
               disabled={isUploading}
             />
 
-            <label
-              htmlFor="file-input"
-              style={{
-                display: "inline-block",
-                backgroundColor: isUploading ? "#d1d5db" : "#a855f7",
-                color: "white",
-                padding: "12px 24px",
-                borderRadius: "8px",
-                cursor: isUploading ? "not-allowed" : "pointer",
-                fontSize: "14px",
-                fontWeight: "500",
-                transition: "all 0.2s",
-              }}
-              onMouseEnter={(e) => {
-                if (!isUploading) e.currentTarget.style.backgroundColor = "#9333ea";
-              }}
-              onMouseLeave={(e) => {
-                if (!isUploading) e.currentTarget.style.backgroundColor = "#a855f7";
-              }}
-            >
-              Choose Images
-            </label>
+            <div style={{ marginBottom: "16px" }}>
+              <p style={{ fontSize: "14px", color: "#6b7280", marginBottom: "16px" }}>
+                {files.length > 0 
+                  ? `${files.length} image${files.length > 1 ? 's' : ''} selected` 
+                  : "Drop your images here or click to browse"}
+              </p>
 
-            <p style={{ fontSize: "12px", color: "#9ca3af", marginTop: "16px" }}>
+              <label
+                htmlFor="file-input"
+                style={{
+                  display: "inline-block",
+                  backgroundColor: isUploading ? "#d1d5db" : "#a855f7",
+                  color: "white",
+                  padding: "12px 24px",
+                  borderRadius: "8px",
+                  cursor: isUploading ? "not-allowed" : "pointer",
+                  fontSize: "14px",
+                  fontWeight: "500",
+                  transition: "all 0.2s",
+                }}
+                onMouseEnter={(e) => {
+                  if (!isUploading) e.currentTarget.style.backgroundColor = "#9333ea";
+                }}
+                onMouseLeave={(e) => {
+                  if (!isUploading) e.currentTarget.style.backgroundColor = "#a855f7";
+                }}
+              >
+                Choose Images
+              </label>
+            </div>
+
+            <p style={{ fontSize: "12px", color: "#9ca3af", marginTop: "0" }}>
               JPG, PNG, GIF, WebP — Max 10MB per file
             </p>
           </div>
