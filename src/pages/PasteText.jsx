@@ -11,7 +11,6 @@ export default function PasteText() {
   const [metadata, setMetadata] = useState({
     title: "",
     speaker: "",
-    category: "",
     url: "",
     publishedDate: "",
   });
@@ -83,10 +82,9 @@ export default function PasteText() {
     setSubmitStatus(null);
     setMetadata({
       title: "",
-      description: "",
-      category: "",
+      speaker: "",
+      url: "",
       publishedDate: "",
-      tags: "",
     });
   };
 
