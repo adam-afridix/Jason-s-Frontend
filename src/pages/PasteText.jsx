@@ -207,10 +207,10 @@ export default function PasteText() {
             disabled={isSubmitting}
             style={{
               width: "100%",
-              height: "100px",
+              height: "300px",
               border: "none",
               outline: "none",
-              resize: "none",
+              resize: "vertical",
               fontSize: "14px",
               color: "#1f2937",
               fontFamily: "system-ui, -apple-system, sans-serif",
